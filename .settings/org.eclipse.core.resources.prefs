@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//CTA/main.py=UTF-8
+encoding//vnpy/__init__.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/ctaBacktesting.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/ctaBase.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/ctaEngine.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/ctaTemplate.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/strategy/strategyEmaDemo.py=UTF-8
+encoding//vnpy/trader/gateway/ctpGateway/__init__.py=UTF-8
