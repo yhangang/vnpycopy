@@ -1,9 +1,23 @@
 eclipse.preferences.version=1
+encoding//CTA/backtesting_demo.py=utf-8
+encoding//CTA/data_upsert.py=utf-8
 encoding//CTA/main.py=UTF-8
 encoding//vnpy/__init__.py=UTF-8
+encoding//vnpy/data/tq/test.py=UTF-8
 encoding//vnpy/trader/app/ctaStrategy/ctaBacktesting.py=UTF-8
 encoding//vnpy/trader/app/ctaStrategy/ctaBase.py=UTF-8
 encoding//vnpy/trader/app/ctaStrategy/ctaEngine.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/ctaHistoryData.py=UTF-8
 encoding//vnpy/trader/app/ctaStrategy/ctaTemplate.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/datayesClient.py=UTF-8
 encoding//vnpy/trader/app/ctaStrategy/strategy/strategyEmaDemo.py=UTF-8
+encoding//vnpy/trader/app/ctaStrategy/uiCtaWidget.py=UTF-8
 encoding//vnpy/trader/gateway/ctpGateway/__init__.py=UTF-8
+<<<<<<< HEAD
+<<<<<<< HEAD
+encoding//vnpy/trader/language/chinese/constant.py=UTF-8
+=======
+>>>>>>> branch 'master' of https://github.com/yhangang/Lapras
+=======
+>>>>>>> branch 'master' of https://github.com/yhangang/Lapras
+encoding//vnpy/trader/vtEngine.py=UTF-8
