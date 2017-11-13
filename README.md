@@ -11,3 +11,20 @@
 	——CTA模块
 
 ---
+
+---
+### 环境准备
+
+**Windows**
+
+1. 支持的操作系统：Windows 7/8/10/Server 2008
+2. 安装[MongoDB](https://www.mongodb.org/downloads#production)，并[将MongoDB配置为系统服务](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/#configure-a-windows-service-for-mongodb-community-edition)
+3. 安装[Anaconda](http://www.continuum.io/downloads)，**注意必须是Python 2.7 32位版本**
+4. 安装[Visual C++ Redistributable Packages for VS2013 x86版本](https://support.microsoft.com/en-us/help/3138367/update-for-visual-c-2013-and-visual-c-redistributable-package)
+
+pip install vnpy pymongo msgpack-python websocket-client qdarkstyle
+
+conda install -c quantopian ta-lib=0.4.9
+
+---
+
