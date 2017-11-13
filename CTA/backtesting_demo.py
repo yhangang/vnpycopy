@@ -152,3 +152,12 @@ engine.runBacktesting()
 
 # 显示回测结果
 engine.showDailyResult()
+
+# 显示逐笔回测结果
+# engine.showBacktestingResult()
+
+# 显示前10条成交记录
+for i in range(len(engine.tradeDict)):
+    d = engine.tradeDict[str(i+1)].__dict__
+#     print d
+    print 'TradeID: %s, Time: %s, Direction: %s, Price: %s, Volume: %s' %(d['tradeID'], d['dt'], d['direction'], d['price'], d['volume'])
