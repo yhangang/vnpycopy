@@ -24,7 +24,7 @@
 4. 安装[Visual C++ Redistributable Packages for VS2013 x86版本](https://support.microsoft.com/en-us/help/3138367/update-for-visual-c-2013-and-visual-c-redistributable-package)
 5. 安装python依赖：
 
-	pip install vnpy pymongo msgpack-python websocket-client qdarkstyle
+	pip install pymongo msgpack-python websocket-client qdarkstyle configparser
 
 	conda install -c quantopian ta-lib=0.4.9
 

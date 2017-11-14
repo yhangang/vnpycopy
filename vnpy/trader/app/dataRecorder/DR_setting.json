@@ -3,16 +3,20 @@
 
     "tick":
     [
+		["c1801", "CTP"],
+		["c1805", "CTP"],
+		["c1809", "CTP"]
     ],
 
     "bar":
     [
-        ["BTC_CNY_SPOT", "OKCOIN"],
-        ["LTC_CNY_SPOT", "OKCOIN"],
-        ["ETH_CNY_SPOT", "OKCOIN"]
+        ["c1801", "CTP"],
+		["c1805", "CTP"],
+		["c1809", "CTP"]
     ],
 
     "active":
     {
+     	
     }
 }

@@ -7,7 +7,7 @@ from vnpy.trader.app.ctaStrategy.ctaBase import DAILY_DB_NAME
 
 # 定义合约代码
 symbol = '510050'
-exchange = 'SSE'
+exchange = 'DCE'
 vtSymbol = '.'.join([symbol, exchange])
 
 class DoubleMaStrategy(CtaTemplate):
