@@ -340,11 +340,18 @@ def test():
     
     def simpletest(event):
         print u'处理每秒触发的计时器事件：%s' % str(datetime.now())
+        
+    def lalala(event):
+        print u'处理手       动的lalala事件：%s' % str(datetime.now())
     
     app = QCoreApplication(sys.argv)
     
     ee = EventEngine2()
-    #ee.register(EVENT_TIMER, simpletest)
+    event = Event(type_='lalala')
+    ee.put(event)
+    ee.put(event)
+    
+    ee.register('lalala', lalala)
     ee.registerGeneralHandler(simpletest)
     ee.start()
     

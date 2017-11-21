@@ -26,15 +26,15 @@ class CtaTemplate(object):
     barDbName = MINUTE_DB_NAME
     
     # 策略的基本参数
-    name = EMPTY_UNICODE           # 策略实例名称
-    vtSymbol = EMPTY_STRING        # 交易的合约vt系统代码    
-    productClass = EMPTY_STRING    # 产品类型（只有IB接口需要）
-    currency = EMPTY_STRING        # 货币（只有IB接口需要）
+    name = EMPTY_UNICODE  # 策略实例名称
+    vtSymbol = EMPTY_STRING  # 交易的合约vt系统代码    
+    productClass = EMPTY_STRING  # 产品类型（只有IB接口需要）
+    currency = EMPTY_STRING  # 货币（只有IB接口需要）
     
     # 策略的基本变量，由引擎管理
-    inited = False                 # 是否进行了初始化
-    trading = False                # 是否启动交易，由引擎管理
-    pos = 0                        # 持仓情况
+    inited = False  # 是否进行了初始化
+    trading = False  # 是否启动交易，由引擎管理
+    pos = 0  # 持仓情况
     
     # 参数列表，保存了参数的名称
     paramList = ['name',
@@ -211,11 +211,11 @@ class TargetPosTemplate(CtaTemplate):
     author = u'量衍投资'
     
     # 目标持仓模板的基本变量
-    tickAdd = 1             # 委托时相对基准价格的超价
-    lastTick = None         # 最新tick数据
-    lastBar = None          # 最新bar数据
-    targetPos = EMPTY_INT   # 目标持仓
-    orderList = []          # 委托号列表
+    tickAdd = 1  # 委托时相对基准价格的超价
+    lastTick = None  # 最新tick数据
+    lastBar = None  # 最新bar数据
+    targetPos = EMPTY_INT  # 目标持仓
+    orderList = []  # 委托号列表
 
     # 变量列表，保存了变量的名称
     varList = ['inited',
@@ -324,19 +324,19 @@ class BarManager(object):
     #----------------------------------------------------------------------
     def __init__(self, onBar, xmin=0, onXminBar=None):
         """Constructor"""
-        self.bar = None             # 1分钟K线对象
-        self.onBar = onBar          # 1分钟K线回调函数
+        self.bar = None  # 1分钟K线对象
+        self.onBar = onBar  # 1分钟K线回调函数
         
-        self.xminBar = None         # X分钟K线对象
-        self.xmin = xmin            # X的值
+        self.xminBar = None  # X分钟K线对象
+        self.xmin = xmin  # X的值
         self.onXminBar = onXminBar  # X分钟K线的回调函数
         
-        self.lastTick = None        # 上一TICK缓存对象
+        self.lastTick = None  # 上一TICK缓存对象
         
     #----------------------------------------------------------------------
     def updateTick(self, tick):
         """TICK更新"""
-        newMinute = False   # 默认不是新的一分钟
+        newMinute = False  # 默认不是新的一分钟
         
         # 尚未创建对象
         if not self.bar:
@@ -376,7 +376,7 @@ class BarManager(object):
         self.bar.openInterest = tick.openInterest
    
         if self.lastTick:
-            self.bar.volume += (tick.volume - self.lastTick.volume) # 当前K线内的成交量
+            self.bar.volume += (tick.volume - self.lastTick.volume)  # 当前K线内的成交量
             
         # 缓存Tick
         self.lastTick = tick
@@ -407,7 +407,7 @@ class BarManager(object):
         self.xminBar.volume += int(bar.volume)                
             
         # X分钟已经走完
-        if not bar.datetime.minute % self.xmin:   # 可以用X整除
+        if not (bar.datetime.minute + 1) % self.xmin:  # 可以用X整除
             # 生成上一X分钟K线的时间戳
             self.xminBar.datetime = self.xminBar.datetime.replace(second=0, microsecond=0)  # 将秒和微秒设为0
             self.xminBar.date = self.xminBar.datetime.strftime('%Y%m%d')
@@ -431,11 +431,11 @@ class ArrayManager(object):
     #----------------------------------------------------------------------
     def __init__(self, size=100):
         """Constructor"""
-        self.count = 0                      # 缓存计数
-        self.size = size                    # 缓存大小
-        self.inited = False                 # True if count>=size
+        self.count = 0  # 缓存计数
+        self.size = size  # 缓存大小
+        self.inited = False  # True if count>=size
         
-        self.openArray = np.zeros(size)     # OHLC
+        self.openArray = np.zeros(size)  # OHLC
         self.highArray = np.zeros(size)
         self.lowArray = np.zeros(size)
         self.closeArray = np.zeros(size)
@@ -448,11 +448,11 @@ class ArrayManager(object):
         if not self.inited and self.count >= self.size:
             self.inited = True
         
-        self.openArray[0:self.size-1] = self.closeArray[1:self.size]
-        self.highArray[0:self.size-1] = self.highArray[1:self.size]
-        self.lowArray[0:self.size-1] = self.lowArray[1:self.size]
-        self.closeArray[0:self.size-1] = self.closeArray[1:self.size]
-        self.volumeArray[0:self.size-1] = self.volumeArray[1:self.size]
+        self.openArray[0:self.size - 1] = self.closeArray[1:self.size]
+        self.highArray[0:self.size - 1] = self.highArray[1:self.size]
+        self.lowArray[0:self.size - 1] = self.lowArray[1:self.size]
+        self.closeArray[0:self.size - 1] = self.closeArray[1:self.size]
+        self.volumeArray[0:self.size - 1] = self.volumeArray[1:self.size]
     
         self.openArray[-1] = bar.open
         self.highArray[-1] = bar.high
