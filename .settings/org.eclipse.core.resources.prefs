@@ -2,8 +2,12 @@
 <<<<<<<=HEAD
 >>>>>>>=branch 'master' of https\://github.com/yhangang/Lapras
 eclipse.preferences.version=1
+encoding//CTA/backtestingSinewave.py=utf-8
 encoding//CTA/backtesting_demo.py=utf-8
 encoding//CTA/main.py=UTF-8
+encoding//CTA/runOptimization.py=UTF-8
+encoding//util/dataClean/runDataCleaning.py=UTF-8
+encoding//util/logging/logger.py=utf-8
 encoding//util/myquantData/getDataFromMyquant.py=utf-8
 encoding//vnpy/__init__.py=UTF-8
 encoding//vnpy/api/shzd/README.md=UTF-8
@@ -40,3 +44,4 @@ encoding//vnpy/trader/vtEngine.py=UTF-8
 encoding//vnpy/trader/vtEvent.py=UTF-8
 encoding//vnpy/trader/vtObject.py=UTF-8
 encoding//vnpy/trader/vtText.py=UTF-8
+encoding/<project>=UTF-8

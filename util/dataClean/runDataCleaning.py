@@ -9,11 +9,11 @@ from vnpy.trader.app.ctaStrategy.ctaBase import MINUTE_DB_NAME, TICK_DB_NAME
 
 
 # 这里以商品期货为例
-MORNING_START = time(9, 0)
+MORNING_START = time(9, 30)
 MORNING_REST = time(10, 15)
-MORNING_RESTART = time(10, 30)
+MORNING_RESTART = time(10, 15)
 MORNING_END = time(11, 30)
-AFTERNOON_START = time(13, 30)
+AFTERNOON_START = time(13, 0)
 AFTERNOON_END = time(15, 0)
 NIGHT_START = time(21, 0)
 NIGHT_END = time(2, 30)
@@ -66,7 +66,7 @@ def runDataCleaning():
         
     # 遍历执行清洗
     today = datetime.now()
-    start = today - timedelta(10)   # 清洗过去10天数据
+    start = today - timedelta(365)   # 清洗过去20天数据
     start.replace(hour=0, minute=0, second=0, microsecond=0)
     
     for l in setting['tick']:

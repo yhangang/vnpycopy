@@ -33,10 +33,10 @@ class MyStrategy(StrategyBase):
         
         # 创建MongoDB连接
         client = pymongo.MongoClient('localhost', 27017)
-        self.tick_collection = client[TICK_DB_NAME][self.symbol]
+        self.bar_collection = client[MINUTE_DB_NAME][self.symbol]
 #         self.bar_collection = client[MINUTE_DB_NAME][self.symbol] #根据K线类型，分别配置MINUTE_DB_NAME和DAILY_DB_NAME
 #         self.bar_collection = client[DAILY_DB_NAME][self.symbol] 
-        self.tick_collection.ensure_index('datetime')
+        self.bar_collection.ensure_index('datetime')
 #         self.bar_collection.ensure_index('datetime')
         print u'MongoDB连接成功'
         

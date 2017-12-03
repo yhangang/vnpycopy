@@ -3,12 +3,18 @@
 
     "tick":
     [
-		["c1801", "CTP"]
+		["IF00", "CTP"],
+		["IF01", "CTP"],
+		["IF02", "CTP"],
+		["IF03", "CTP"]
     ],
 
     "bar":
     [
-        
+    	["IF00", "CTP"],
+		["IF01", "CTP"],
+		["IF02", "CTP"],
+		["IF03", "CTP"]
     ],
 
     "active":
