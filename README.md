@@ -1,28 +1,28 @@
-### Ê¹ÓÃvn.py¿ªÔ´Á¿»¯¿ò¹¹½¨µÄÁ¿»¯½»Ò×ÏµÍ³
+### ä½¿ç”¨vn.pyå¼€æºé‡åŒ–æ¡†æ„å»ºçš„é‡åŒ–äº¤æ˜“ç³»ç»Ÿ
 ### vn.py - By Traders, For Traders.
 ### http://www.vnpy.org/
 
 ---
-### ¼ò½é
-ÏîÄ¿Ãû³Æ:À­ÆÕÀ­Ë¹ £¨Lapras£©
-°æ±¾£º0.1
-Ä£¿é£º
+### ç®€ä»‹
+é¡¹ç›®åç§°:æ‹‰æ™®æ‹‰æ–¯ ï¼ˆLaprasï¼‰
+ç‰ˆæœ¬ï¼š0.1
+æ¨¡å—ï¼š
 
-	¡ª¡ªVNPYÄ¬ÈÏÄ£¿é£¬Ìá¹©½»Ò×¿ò¼ÜºÍAPI
+	â€”â€”VNPYé»˜è®¤æ¨¡å—ï¼Œæä¾›äº¤æ˜“æ¡†æ¶å’ŒAPI
 	
-	¡ª¡ªCTAÄ£¿é
+	â€”â€”CTAæ¨¡å—
 
 
 ---
-### »·¾³×¼±¸
+### ç¯å¢ƒå‡†å¤‡
 
 **Windows**
 
-1. Ö§³ÖµÄ²Ù×÷ÏµÍ³£ºWindows 7/8/10/Server 2008
-2. °²×°[MongoDB](https://www.mongodb.org/downloads#production)£¬²¢[½«MongoDBÅäÖÃÎªÏµÍ³·şÎñ](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/#configure-a-windows-service-for-mongodb-community-edition)
-3. °²×°[Anaconda](http://www.continuum.io/downloads)£¬**×¢Òâ±ØĞëÊÇPython 2.7 32Î»°æ±¾**
-4. °²×°[Visual C++ Redistributable Packages for VS2013 x86°æ±¾](https://support.microsoft.com/en-us/help/3138367/update-for-visual-c-2013-and-visual-c-redistributable-package)
-5. °²×°pythonÒÀÀµ£º
+1. æ”¯æŒçš„æ“ä½œç³»ç»Ÿï¼šWindows 7/8/10/Server 2008
+2. å®‰è£…[MongoDB](https://www.mongodb.org/downloads#production)ï¼Œå¹¶[å°†MongoDBé…ç½®ä¸ºç³»ç»ŸæœåŠ¡](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/#configure-a-windows-service-for-mongodb-community-edition)
+3. å®‰è£…[Anaconda](http://www.continuum.io/downloads)ï¼Œ**æ³¨æ„å¿…é¡»æ˜¯Python 2.7 32ä½ç‰ˆæœ¬**
+4. å®‰è£…[Visual C++ Redistributable Packages for VS2013 x86ç‰ˆæœ¬](https://support.microsoft.com/en-us/help/3138367/update-for-visual-c-2013-and-visual-c-redistributable-package)
+5. å®‰è£…pythonä¾èµ–ï¼š
 
 	pip install pymongo msgpack-python websocket-client qdarkstyle configparser
 

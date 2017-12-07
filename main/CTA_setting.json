@@ -1,5 +1,10 @@
 [
     {
+        "name": "strategySinewave",
+        "className": "SinewaveStrategy",
+        "vtSymbol": "rb1801"
+    },
+    {
         "name": "strategyTesting",
         "className": "TestingStrategy",
         "vtSymbol": "rb1801"

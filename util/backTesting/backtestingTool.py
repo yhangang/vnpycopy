@@ -4,12 +4,12 @@
 from vnpy.trader.app.ctaStrategy.ctaBacktesting import BacktestingEngine
 from vnpy.trader.app.ctaStrategy.ctaBase import MINUTE_DB_NAME
 
-from CTA.strategySinewave import SinewaveStrategy
+from CTA.strategyTesting import TestingStrategy
 from util.logging.logger import logger
 
 
 # 定义合约代码
-symbol = 'SR'
+symbol = 'C'
 exchange = '**'
 vtSymbol = '.'.join([symbol, exchange])
     
@@ -22,7 +22,7 @@ engine = BacktestingEngine()
 engine.setBacktestingMode(engine.BAR_MODE)
 
 # 设置回测用的数据起始日期
-engine.setStartDate('20160101', initDays=0)
+engine.setStartDate('20171201', initDays=0)
 
 # 设置产品相关参数
 engine.setSlippage(0)  # 滑点设为0
@@ -35,7 +35,7 @@ engine.setCapital(1)  # 为了只统计净盈亏，设置初始资金为1
 engine.setDatabase(MINUTE_DB_NAME, symbol)
 
 # 在引擎中创建策略对象
-engine.initStrategy(SinewaveStrategy, {})
+engine.initStrategy(TestingStrategy, {})
 
 # 开始跑回测
 engine.runBacktesting()

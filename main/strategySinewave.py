@@ -11,6 +11,7 @@ from vnpy.trader.app.ctaStrategy.ctaTemplate import (CtaTemplate,
                                                      ArrayManager)
 
 from util.logging.logger import logger
+import random
  
  
 ########################################################################
@@ -21,8 +22,8 @@ class SinewaveStrategy(CtaTemplate):
 
     # 策略参数
     initDays = 0  # 初始化数据所用的天数
-    upLimit = 9999  # 涨停板价格，用于发市价单
-    downLimit = 1  # 跌停板价格，用于发市价单
+    upLimit = 0  # 涨停板价格，用于发市价单
+    downLimit = 0  # 跌停板价格，用于发市价单
     max_drawdown = 50  # 可容忍的最大回撤
     excess_count = 5  # 正玄波D需超出B的点数
     excess_count2 = 10  # 开仓时大于excess_count的点数限制，防止成本过高
@@ -100,11 +101,14 @@ class SinewaveStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def onTick(self, tick):
         """收到行情TICK推送（必须由用户继承实现）"""
+        self.downLimit = tick.lowerLimit
+        self.upLimit = tick.upperLimit
         self.bm.updateTick(tick)
 
     #----------------------------------------------------------------------
     def onBar(self, bar):
         """收到Bar推送（必须由用户继承实现）"""
+        
         self.cancelAll()
         self.bm.updateBar(bar)
         # 发出状态更新事件
@@ -112,6 +116,8 @@ class SinewaveStrategy(CtaTemplate):
         
     def onXminBar(self, bar):
         """收到X分钟Bar推送（必须由用户继承实现）"""
+        self.writeCtaLog(u'%s 到X分钟Bar推送' % bar.datetime)
+        logger.info(u'%s 到X分钟Bar推送' % bar.datetime)
 #         logger.debug(str(bar.datetime) + '---------------------')
         # 仓位不空时，首先计算回撤，超过容忍值则强制平仓
         if self.space == 1:
@@ -249,6 +255,9 @@ class SinewaveStrategy(CtaTemplate):
                 self.cover(self.upLimit, self.volume)
                 logger.info("时间：%s  平/空  价格：%s" % (bar.datetime, bar.close))
                 self.space = 0
+        
+        # 发出状态更新事件
+        self.putEvent()
      
     #----------------------------------------------------------------------
     def onOrder(self, order):
