@@ -33,11 +33,15 @@ class MyStrategy(StrategyBase):
         
         # 创建MongoDB连接
         client = pymongo.MongoClient('localhost', 27017)
+        
+#         self.tick_collection = client[TICK_DB_NAME][self.symbol] 
+#         self.tick_collection.ensure_index('datetime')
+        
+        #根据K线类型，分别配置MINUTE_DB_NAME和TICK_DB_NAME
         self.bar_collection = client[MINUTE_DB_NAME][self.symbol]
-#         self.bar_collection = client[MINUTE_DB_NAME][self.symbol] #根据K线类型，分别配置MINUTE_DB_NAME和DAILY_DB_NAME
 #         self.bar_collection = client[DAILY_DB_NAME][self.symbol] 
         self.bar_collection.ensure_index('datetime')
-#         self.bar_collection.ensure_index('datetime')
+        
         print u'MongoDB连接成功'
         
         
@@ -128,7 +132,7 @@ class MyStrategy(StrategyBase):
         vtBar.datetime = dt          # python的datetime时间对象
         
         vtBar.volume = bar.volume             # 成交量
-        vtBar.openInterest = bar.position       # 持仓量    
+        vtBar.openInterest = bar.position       # 持仓量
     
         flt = {'datetime': vtBar.datetime}
         self.bar_collection.update_one(flt, {'$set':vtBar.__dict__}, upsert=True)

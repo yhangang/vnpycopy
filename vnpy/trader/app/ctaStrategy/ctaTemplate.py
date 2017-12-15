@@ -497,6 +497,14 @@ class ArrayManager(object):
         if array:
             return result
         return result[-1]
+    
+    #----------------------------------------------------------------------
+    def ema(self, n, array=False):
+        """指数均线"""
+        result = talib.EMA(self.close, n)
+        if array:
+            return result
+        return result[-1]
         
     #----------------------------------------------------------------------
     def std(self, n, array=False):

@@ -7,6 +7,15 @@
     "password": "password123"    
 }
 
+#CTP模拟 7×24
+{
+    "brokerID": "9999", 
+    "mdAddress": "tcp://180.168.146.187:10031", 
+    "tdAddress": "tcp://180.168.146.187:10030", 
+    "userID": "100987",
+    "password": "password123"    
+}
+
 #上海中期期货
 {
     "brokerID": "8070", 

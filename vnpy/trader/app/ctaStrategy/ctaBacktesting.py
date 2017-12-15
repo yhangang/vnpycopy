@@ -16,6 +16,7 @@ import pymongo
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from anaconda_navigator.utils.logs import logger
 
 # 如果安装了seaborn则设置为白色风格
 try:
@@ -105,7 +106,6 @@ class BacktestingEngine(object):
         """取整价格到合约最小价格变动"""
         if not self.priceTick:
             return price
-        
         newPrice = round(price/self.priceTick, 0) * self.priceTick
         return newPrice
 
@@ -367,12 +367,13 @@ class BacktestingEngine(object):
             buyCrossPrice = self.tick.lastPrice
             sellCrossPrice = self.tick.lastPrice
             bestCrossPrice = self.tick.lastPrice
-        
+            
         # 遍历停止单字典中的所有停止单
         for stopOrderID, so in self.workingStopOrderDict.items():
             # 判断是否会成交
             buyCross = so.direction==DIRECTION_LONG and so.price<=buyCrossPrice
             sellCross = so.direction==DIRECTION_SHORT and so.price>=sellCrossPrice
+            
             
             # 如果发生了成交
             if buyCross or sellCross:
