@@ -31,23 +31,6 @@ class KkStrategy(CtaTemplate):
     initDays = 10  # 初始化数据所用的天数
     fixedSize = 1  # 每次交易的数量
 
-    # 策略变量
-    downLimit = 0  # 当日最低价限制
-    upLimit = 9999  # 当日最高价限制
-    
-    kkUp = 0  # KK通道上轨
-    kkDown = 0  # KK通道下轨
-    intraTradeHigh = 0  # 持仓期内的最高点
-    intraTradeLow = 0  # 持仓期内的最低点
-    OPENLIMIT = 3
-    openCountLimit = OPENLIMIT  # 每日剩余开仓次数
-    amCount = 0       #ArrayManager的K线初始化根数
-    
-    lastBarDay = 0
-
-    buyOrderIDList = []  # OCO委托买入开仓的委托号
-    shortOrderIDList = []  # OCO委托卖出开仓的委托号
-    orderList = []  # 保存委托代码的列表
 
     # 参数列表，保存了参数的名称
     paramList = ['name',
@@ -77,6 +60,20 @@ class KkStrategy(CtaTemplate):
         self.bm = BarManager(self.onBar, 5, self.onFiveBar)  # 创建K线合成器对象
         self.am = ArrayManager(self.kkLength + 1)
         
+        # 策略变量
+        self.downLimit = 0  # 当日最低价限制
+        self.upLimit = 9999  # 当日最高价限制
+        
+        self.kkUp = 0  # KK通道上轨
+        self.kkDown = 0  # KK通道下轨
+        self.intraTradeHigh = 0  # 持仓期内的最高点
+        self.intraTradeLow = 0  # 持仓期内的最低点
+        self.OPENLIMIT = 3
+        self.openCountLimit = self.OPENLIMIT  # 每日剩余开仓次数
+        self.amCount = 0       #ArrayManager的K线初始化根数
+        
+        self.lastBarDay = 0
+    
         self.buyOrderIDList = []  # OCO委托买入开仓的委托号
         self.shortOrderIDList = []  # OCO委托卖出开仓的委托号
         self.orderList = []  # 保存委托代码的列表
@@ -109,6 +106,18 @@ class KkStrategy(CtaTemplate):
         """收到行情TICK推送（必须由用户继承实现）""" 
         self.downLimit = tick.lowerLimit
         self.upLimit = tick.upperLimit
+        
+        # 到达收盘时段14:59:30以后，强制平仓
+        if arrow.get(tick.datetime).hour == 14 and arrow.get(tick.datetime).minute >= 59 and arrow.get(tick.datetime).second >= 30:
+            if self.pos > 0:
+                self.short(self.downLimit, abs(self.pos))
+            elif self.pos < 0:
+                self.buy(self.upLimit, abs(self.pos))
+            logger.info("到达当日收盘时间:%s，强制平仓！" % tick.datetime)
+            # 发出状态更新事件
+            self.putEvent() 
+            return 
+        
         self.bm.updateTick(tick)
         self.putEvent()
 
@@ -141,19 +150,8 @@ class KkStrategy(CtaTemplate):
             self.putEvent()   
             return             
         
-        
-        # 到达收盘时段，强制平仓
-        if arrow.get(bar.datetime).hour == 14 and arrow.get(bar.datetime).minute >= 50 and arrow.get(bar.datetime).minute < 59:
-            if self.pos > 0:
-                self.short(self.downLimit, abs(self.pos))
-            elif self.pos < 0:
-                self.buy(self.upLimit, abs(self.pos))
-            logger.info("到达当日收盘时间:%s，强制平仓！" % bar.datetime)
-            # 发出状态更新事件
-            self.putEvent() 
-            return 
         #早上禁止开仓，暂不启用
-        elif arrow.get(bar.datetime).hour == 9 and arrow.get(bar.datetime).minute <= 30:
+        if arrow.get(bar.datetime).hour == 9 and arrow.get(bar.datetime).minute < 30:
             # 发出状态更新事件
             self.putEvent() 
             return 
