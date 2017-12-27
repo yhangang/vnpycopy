@@ -29,7 +29,7 @@ class KkStrategy(CtaTemplate):
     kkDev = 1.618  # 计算通道宽度的偏差
     trailingPrcnt = 0.35  # 移动止损
     initDays = 10  # 初始化数据所用的天数
-    fixedSize = 1  # 每次交易的数量
+    fixedSize = 2  # 每次交易的数量
 
 
     # 参数列表，保存了参数的名称
@@ -47,7 +47,7 @@ class KkStrategy(CtaTemplate):
                'pos',
                'kkUp',
                'kkDown',
-               'openCountLimit',
+               'tradeCountLimit',
                'downLimit',
                'upLimit',
                'amCount']  
@@ -68,8 +68,8 @@ class KkStrategy(CtaTemplate):
         self.kkDown = 0  # KK通道下轨
         self.intraTradeHigh = 0  # 持仓期内的最高点
         self.intraTradeLow = 0  # 持仓期内的最低点
-        self.OPENLIMIT = 3
-        self.openCountLimit = self.OPENLIMIT  # 每日剩余开仓次数
+        self.OPENLIMIT = 3 # 每日开仓次数
+        self.tradeCountLimit = self.OPENLIMIT * self.fixedSize * 2  # 每日剩余交易次数
         self.amCount = 0       #ArrayManager的K线初始化根数
         
         self.lastBarDay = 0
@@ -107,17 +107,14 @@ class KkStrategy(CtaTemplate):
         self.downLimit = tick.lowerLimit
         self.upLimit = tick.upperLimit
         
-        # 到达收盘时段14:59:30以后，强制平仓
-        if arrow.get(tick.datetime).hour == 14 and arrow.get(tick.datetime).minute >= 59 and arrow.get(tick.datetime).second >= 30:
+        # 到达收盘时段14:50:00以后，强制平仓
+        if arrow.get(tick.datetime).hour == 14 and arrow.get(tick.datetime).minute >= 50 and arrow.get(tick.datetime).second >= 0:
             if self.pos > 0:
                 self.short(self.downLimit, abs(self.pos))
             elif self.pos < 0:
                 self.buy(self.upLimit, abs(self.pos))
             logger.info("到达当日收盘时间:%s，强制平仓！" % tick.datetime)
-            # 发出状态更新事件
-            self.putEvent() 
-            return 
-        
+
         self.bm.updateTick(tick)
         self.putEvent()
 
@@ -130,7 +127,7 @@ class KkStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def onFiveBar(self, bar):
         """收到5分钟K线"""
-        self.writeCtaLog(u'收到5分钟K线推送 ')
+        self.writeCtaLog(u'%s 收到5分钟K线推送 ' % bar.datetime)
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
         for orderID in self.orderList:
             self.cancelOrder(orderID)
@@ -139,7 +136,15 @@ class KkStrategy(CtaTemplate):
         #判断是否是同一天的bar
         if arrow.get(bar.datetime).day != self.lastBarDay:
             self.lastBarDay = arrow.get(bar.datetime).day
-            self.openCountLimit = self.OPENLIMIT
+            self.tradeCountLimit = self.OPENLIMIT * self.fixedSize * 2
+            
+        # 到达收盘时段14:50:00以后，强制平仓
+#         if arrow.get(bar.datetime).hour == 14 and arrow.get(bar.datetime).minute >= 50:
+#             if self.pos > 0:
+#                 self.short(self.downLimit, abs(self.pos))
+#             elif self.pos < 0:
+#                 self.buy(self.upLimit, abs(self.pos))
+#             logger.info("到达当日收盘时间:%s，强制平仓！" % bar.datetime)
         
         
         # 保存K线数据
@@ -150,13 +155,6 @@ class KkStrategy(CtaTemplate):
             self.putEvent()   
             return             
         
-        #早上禁止开仓，暂不启用
-        if arrow.get(bar.datetime).hour == 9 and arrow.get(bar.datetime).minute < 30:
-            # 发出状态更新事件
-            self.putEvent() 
-            return 
-            
-        
         # 计算指标数值
         self.kkUp, self.kkDown = am.keltner(self.kkLength, self.kkDev)
         logger.info("收到5分钟K线推送----时间：%s  最高价:%.2f  最低价：%.2f  kkDown：%.2f   kkUp:%.2f  仓位：%s" % (bar.datetime, bar.high, bar.low, self.kkDown, self.kkUp, self.pos))
@@ -165,7 +163,12 @@ class KkStrategy(CtaTemplate):
     
         # 当前无仓位，并且未达到当日开仓次数限制，发送OCO开仓委托
         if self.pos == 0:
-            if self.openCountLimit >= 1:
+            #14:30之后禁止开仓
+            if arrow.get(bar.datetime).hour == 14 and arrow.get(bar.datetime).minute > 30:
+                # 发出状态更新事件
+                self.putEvent() 
+                return 
+            if self.tradeCountLimit >= 1:
                 self.intraTradeHigh = bar.high
                 self.intraTradeLow = bar.low            
                 self.sendOcoOrder(self.kkUp, self.kkDown, self.fixedSize)
@@ -201,14 +204,13 @@ class KkStrategy(CtaTemplate):
 
     #----------------------------------------------------------------------
     def onTrade(self, trade):
-        logger.info("成交回报  direction:%s  offset:%s  price:%.2f  volume:%s  tradeTime:%s" % (trade.direction, 
+        logger.info("成交回报   direction:%s  offset:%s  price:%.2f  volume:%s  tradeTime:%s" % (trade.direction, 
                                                                                           trade.offset,
                                                                                           trade.price,
                                                                                            trade.volume,
                                                                                             trade.tradeTime))
-        
+        self.tradeCountLimit -= 1
         if self.pos != 0:
-            self.openCountLimit -= 1
             # 多头开仓成交后，撤消空头委托
             if self.pos > 0:
                 for shortOrderID in self.shortOrderIDList:

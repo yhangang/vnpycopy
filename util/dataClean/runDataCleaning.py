@@ -9,7 +9,7 @@ from vnpy.trader.app.ctaStrategy.ctaBase import MINUTE_DB_NAME, TICK_DB_NAME
 
 
 # 这里以商品期货为例
-MORNING_START = time(9, 30)
+MORNING_START = time(9, 0)
 MORNING_REST = time(10, 15)
 MORNING_RESTART = time(10, 15)
 MORNING_END = time(11, 30)

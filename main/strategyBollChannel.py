@@ -41,7 +41,7 @@ class BollChannelStrategy(CtaTemplate):
     bollDev = 3.0                       # 布林通道的偏差
     slMultiplier = 4.0                  # 计算止损距离的乘数
     initDays = 10                       # 初始化数据所用的天数
-    fixedSize = 1                       # 每次交易的数量
+    fixedSize = 10                       # 每次交易的数量
 
     # 策略变量
     bollUp = 0                          # 布林通道上轨
@@ -123,8 +123,8 @@ class BollChannelStrategy(CtaTemplate):
         self.downLimit = tick.lowerLimit
         self.upLimit = tick.upperLimit
         
-        # 到达收盘时段22:40:00以后，强制平仓
-        if arrow.get(tick.datetime).hour == 22 and arrow.get(tick.datetime).minute >= 59 and arrow.get(tick.datetime).second >= 30:
+        # 到达每周五收盘时段22:59:00以后，强制平仓
+        if arrow.get(tick.datetime).hour >= 22 and arrow.get(tick.datetime).minute >= 57:
             if self.pos > 0:
                 self.sell(self.downLimit, abs(self.pos))
             elif self.pos < 0:
@@ -145,7 +145,7 @@ class BollChannelStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def onXminBar(self, bar):
         """收到15分钟K线"""
-        self.writeCtaLog(u'收到15分钟K线推送 ')
+        self.writeCtaLog(u'%s 收到15分钟K线推送 ' % bar.datetime)
         # 全撤之前发出的委托
         self.cancelAll()
         
@@ -154,7 +154,7 @@ class BollChannelStrategy(CtaTemplate):
             return
         
         # 到达收盘时段22:40:00以后，强制平仓，仅用于回测
-#         if arrow.get(bar.datetime).hour == 22 and arrow.get(bar.datetime).minute >= 40:
+#         if arrow.get(bar.datetime).hour >= 22 and arrow.get(bar.datetime).minute >= 40:
 #             if self.pos > 0:
 #                 self.sell(self.downLimit, abs(self.pos))
 #             elif self.pos < 0:
