@@ -4,13 +4,12 @@
 from vnpy.trader.app.ctaStrategy.ctaBacktesting import BacktestingEngine
 from vnpy.trader.app.ctaStrategy.ctaBase import MINUTE_DB_NAME, TICK_DB_NAME
 
-from main.strategyBollChannel import BollChannelStrategy
-from main.strategyKingKeltner import KkStrategy
+from main.strategyKK_IF import IF_KkStrategy
 from util.logging.logger import logger
 
 
 # 定义合约代码
-symbol = 'IH'
+symbol = 'IF'
 exchange = '**'
 vtSymbol = '.'.join([symbol, exchange])
     
@@ -29,7 +28,7 @@ engine.setStartDate('20160101', initDays=3)
 # 设置产品相关参数
 engine.setSlippage(0)  # 滑点设为0
 engine.setRate(0.5 / 10000)  # 手续费
-engine.setSize(200)  # 合约乘数
+engine.setSize(300)  # 合约乘数
 engine.setPriceTick(0.2)  # 股指期货最小价格变动
 engine.setCapital(1)  # 为了只统计净盈亏，设置初始资金为1
 
@@ -37,7 +36,7 @@ engine.setCapital(1)  # 为了只统计净盈亏，设置初始资金为1
 engine.setDatabase(MINUTE_DB_NAME, symbol)
 
 # 在引擎中创建策略对象
-engine.initStrategy(KkStrategy, {})
+engine.initStrategy(IF_KkStrategy, {})
 
 # 开始跑回测
 engine.runBacktesting()

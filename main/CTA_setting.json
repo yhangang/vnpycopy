@@ -1,12 +1,22 @@
 [
     {
+        "name": "IF1801 KingKeltner",
+        "className": "IF_KkStrategy",
+        "vtSymbol": "IF1801"
+    },
+	{
         "name": "IH1801 KingKeltner",
         "className": "KkStrategy",
         "vtSymbol": "IH1801"
     },
     {
-        "name": "rb1805 BollChannel",
-        "className": "BollChannelStrategy",
+        "name": "rb1805 KingKeltner",
+        "className": "RB_KkStrategy",
         "vtSymbol": "rb1805"
+    },
+    {
+        "name": "j1805 KingKeltner",
+        "className": "J_KkStrategy",
+        "vtSymbol": "j1805"
     }
 ]

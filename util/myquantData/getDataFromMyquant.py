@@ -4,42 +4,38 @@
 需要安装掘金量化客户端及python依赖包，注册用户及登录
 具体用法见其官网：http://www.myquant.cn
 '''
-from gmsdk.api import StrategyBase
-
-# 引入工具类
-import pymongo
 from datetime import datetime
-import configparser as cp
+import json
 
-# 引入vnpy数据库配置
+from gmsdk.api import StrategyBase
+import pymongo
+from vnpy.trader.app.ctaStrategy.ctaBase import DAILY_DB_NAME
+from vnpy.trader.app.ctaStrategy.ctaBase import MINUTE_DB_NAME
+from vnpy.trader.app.ctaStrategy.ctaBase import TICK_DB_NAME
 from vnpy.trader.vtObject import VtBarData
 from vnpy.trader.vtObject import VtTickData
-from vnpy.trader.app.ctaStrategy.ctaBase import TICK_DB_NAME
-from vnpy.trader.app.ctaStrategy.ctaBase import MINUTE_DB_NAME
-from vnpy.trader.app.ctaStrategy.ctaBase import DAILY_DB_NAME
 
+self_symbol = ""        #合约代码
+self_exchange = ""      #交易所代码
+self_vtSymbol = ""      #vtSymbol
+
+
+# 引入工具类
+# 引入vnpy数据库配置
 class MyStrategy(StrategyBase):
     
     def __init__(self, *args, **kwargs):
         super(MyStrategy, self).__init__(*args, **kwargs)
         
-        # 通过配置文件初始化合约信息
-        cf = cp.ConfigParser()
-        cf.read("config.ini", 'UTF-8')
-        self.symbol = cf.get('para', 'symbol')
-        self.exchange = cf.get('para', 'exchange')
-        self.vtSymbol = cf.get('para', 'vtSymbol')
-        print u'合约初始化完成'
-        
         # 创建MongoDB连接
         client = pymongo.MongoClient('localhost', 27017)
         
-#         self.tick_collection = client[TICK_DB_NAME][self.symbol] 
+#         self.tick_collection = client[TICK_DB_NAME][self_symbol] 
 #         self.tick_collection.ensure_index('datetime')
         
         #根据K线类型，分别配置MINUTE_DB_NAME和TICK_DB_NAME
-        self.bar_collection = client[MINUTE_DB_NAME][self.symbol]
-#         self.bar_collection = client[DAILY_DB_NAME][self.symbol] 
+        self.bar_collection = client[MINUTE_DB_NAME][self_symbol]
+#         self.bar_collection = client[DAILY_DB_NAME][self_symbol] 
         self.bar_collection.ensure_index('datetime')
         
         print u'MongoDB连接成功'
@@ -56,9 +52,9 @@ class MyStrategy(StrategyBase):
         vtTick = VtTickData()
         
         # 代码相关
-        vtTick.symbol = self.symbol              # 合约代码
-        vtTick.exchange = self.exchange            # 交易所代码
-        vtTick.vtSymbol = self.vtSymbol            # 合约在vt系统中的唯一代码，通常是 合约代码.交易所代码
+        vtTick.symbol = self_symbol              # 合约代码
+        vtTick.exchange = self_exchange            # 交易所代码
+        vtTick.vtSymbol = self_vtSymbol            # 合约在vt系统中的唯一代码，通常是 合约代码.交易所代码
         
         # 成交数据
         vtTick.lastPrice = tick.last_price            # 最新成交价
@@ -117,9 +113,9 @@ class MyStrategy(StrategyBase):
     def on_bar(self, bar):
         print bar.strtime
         vtBar = VtBarData()
-        vtBar.vtSymbol = self.vtSymbol        # vt系统代码
-        vtBar.symbol = self.symbol          # 代码
-        vtBar.exchange = self.exchange        # 交易所
+        vtBar.vtSymbol = self_vtSymbol        # vt系统代码
+        vtBar.symbol = self_symbol          # 代码
+        vtBar.exchange = self_exchange        # 交易所
     
         vtBar.open = bar.open             # OHLC
         vtBar.high = bar.high
@@ -145,7 +141,40 @@ class MyStrategy(StrategyBase):
 
 
 if __name__ == '__main__':
-    strategy = MyStrategy(config_file='config.ini')
-    ret = strategy.run()
-    string = strategy.get_strerror(ret)
-    print string.decode('gb2312')
+#     strategy = MyStrategy(config_file='config.ini')
+#     ret = strategy.run()
+#     string = strategy.get_strerror(ret)
+#     print string.decode('gb2312')
+
+    setting = {}
+    with open("symbol.json") as f:
+        setting = json.load(f)          #加载配置文件
+    subscribe_symbols = setting["symbol"]
+    
+    #读取配置文件的合约，依次插入数据
+    for symbol in subscribe_symbols:
+        self_symbol = symbol.split('.')[1]
+        self_exchange = symbol.split('.')[0]
+        self_vtSymbol = self_symbol + "." +self_exchange
+        print("symbol:" + self_vtSymbol + " initialized")
+        
+        
+        mystrategy = MyStrategy(
+            username='18217641619',
+            password='yh8013209',
+            strategy_id='strategy_1',
+            subscribe_symbols=symbol,
+            mode=4,
+            td_addr='localhost:8001')
+        ret = mystrategy.backtest_config(
+            start_time='2018-01-01 9:00:00',
+            end_time='2018-12-31 15:00:00',
+            initial_cash=1000000,
+            transaction_ratio=1,
+            commission_ratio=0,
+            slippage_ratio=0,
+            price_type=1,
+            bench_symbol='')
+        ret = mystrategy.run()
+        string = mystrategy.get_strerror(ret)
+        print string.decode('gb2312')

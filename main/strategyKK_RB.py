@@ -19,7 +19,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 ########################################################################
-class KkStrategy(CtaTemplate):
+class RB_KkStrategy(CtaTemplate):
     """基于King Keltner通道的交易策略"""
     className = 'KkStrategy'
     author = u'量化的猪'
@@ -27,9 +27,9 @@ class KkStrategy(CtaTemplate):
     # 策略参数
     kkLength = 11  # 计算通道中值的窗口数
     kkDev = 1.618  # 计算通道宽度的偏差
-    trailingPrcnt = 0.45  # 移动止损
+    trailingPrcnt = 0.7  # 移动止损
     initDays = 10  # 初始化数据所用的天数
-    fixedSize = 2  # 每次交易的数量
+    fixedSize = 10  # 每次交易的数量
 
 
     # 参数列表，保存了参数的名称
@@ -55,7 +55,7 @@ class KkStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def __init__(self, ctaEngine, setting):
         """Constructor"""
-        super(KkStrategy, self).__init__(ctaEngine, setting)
+        super(RB_KkStrategy, self).__init__(ctaEngine, setting)
         
         self.bm = BarManager(self.onBar, 5, self.onFiveBar)  # 创建K线合成器对象
         self.am = ArrayManager(self.kkLength + 1)
@@ -110,9 +110,9 @@ class KkStrategy(CtaTemplate):
         # 到达收盘时段14:50:00以后，强制平仓
         if arrow.get(tick.datetime).hour == 14 and arrow.get(tick.datetime).minute >= 50 and arrow.get(tick.datetime).second >= 0:
             if self.pos > 0:
-                self.short(self.downLimit, abs(self.pos))
+                self.sell(self.downLimit, abs(self.pos))
             elif self.pos < 0:
-                self.buy(self.upLimit, abs(self.pos))
+                self.cover(self.upLimit, abs(self.pos))
             logger.info("到达当日收盘时间:%s，强制平仓！" % tick.datetime)
 
         self.bm.updateTick(tick)
@@ -127,7 +127,7 @@ class KkStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def onFiveBar(self, bar):
         """收到5分钟K线"""
-        self.writeCtaLog(u'%s 收到5分钟K线推送 ' % bar.datetime)
+        self.writeCtaLog(u'%s %s收到5分钟K线推送 ' % (bar.datetime,bar.symbol))
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
         for orderID in self.orderList:
             self.cancelOrder(orderID)
@@ -139,12 +139,12 @@ class KkStrategy(CtaTemplate):
             self.tradeCountLimit = self.OPENLIMIT * self.fixedSize * 2
             
         # 到达收盘时段14:50:00以后，强制平仓
-#         if arrow.get(bar.datetime).hour == 14 and arrow.get(bar.datetime).minute >= 50:
-#             if self.pos > 0:
-#                 self.short(self.downLimit, abs(self.pos))
-#             elif self.pos < 0:
-#                 self.buy(self.upLimit, abs(self.pos))
-#             logger.info("到达当日收盘时间:%s，强制平仓！" % bar.datetime)
+        if arrow.get(bar.datetime).hour == 14 and arrow.get(bar.datetime).minute >= 50:
+            if self.pos > 0:
+                self.sell(self.downLimit, abs(self.pos))
+            elif self.pos < 0:
+                self.cover(self.upLimit, abs(self.pos))
+            logger.info("%s 到达当日收盘时间:%s，强制平仓！" % (bar.symbol,bar.datetime))
         
         
         # 保存K线数据
@@ -157,7 +157,7 @@ class KkStrategy(CtaTemplate):
         
         # 计算指标数值
         self.kkUp, self.kkDown = am.keltner(self.kkLength, self.kkDev)
-        logger.info("收到5分钟K线推送----时间：%s  最高价:%.2f  最低价：%.2f  kkDown：%.2f   kkUp:%.2f  仓位：%s" % (bar.datetime, bar.high, bar.low, self.kkDown, self.kkUp, self.pos))
+        logger.info("%s 收到5分钟K线推送----时间：%s  最高价:%.2f  最低价：%.2f  kkDown：%.2f   kkUp:%.2f  仓位：%s" % (bar.symbol, bar.datetime, bar.high, bar.low, self.kkDown, self.kkUp, self.pos))
         
         # 判断是否要进行交易
     
@@ -172,27 +172,27 @@ class KkStrategy(CtaTemplate):
                 self.intraTradeHigh = bar.high
                 self.intraTradeLow = bar.low            
                 self.sendOcoOrder(self.kkUp, self.kkDown, self.fixedSize)
-                logger.info("%s--------发送OCO委托，买价:%.2f  卖价:%.2f" % (bar.datetime,self.kkUp,self.kkDown))
+                logger.info("%s--------%s 发送OCO委托，买价:%.2f  卖价:%.2f" % (bar.datetime, bar.symbol, self.kkUp,self.kkDown))
     
         # 持有多头仓位
         elif self.pos > 0:
             self.intraTradeHigh = max(self.intraTradeHigh, bar.high)
             self.intraTradeLow = bar.low
             
-            l = self.short(self.intraTradeHigh * (1 - self.trailingPrcnt / 100),
+            l = self.sell(self.intraTradeHigh * (1 - self.trailingPrcnt / 100),
                                 abs(self.pos), True)
             self.orderList.extend(l)
-            logger.info("%s--------发送平多仓委托，价格：%.2f" % (bar.datetime, self.intraTradeHigh * (1 - self.trailingPrcnt / 100)))
+            logger.info("%s--------%s 发送平多仓委托，价格：%.2f" % (bar.datetime,bar.symbol, self.intraTradeHigh * (1 - self.trailingPrcnt / 100)))
     
         # 持有空头仓位
         elif self.pos < 0:
             self.intraTradeHigh = bar.high
             self.intraTradeLow = min(self.intraTradeLow, bar.low)
             
-            l = self.buy(self.intraTradeLow * (1 + self.trailingPrcnt / 100),
+            l = self.cover(self.intraTradeLow * (1 + self.trailingPrcnt / 100),
                                abs(self.pos), True)
             self.orderList.extend(l)
-            logger.info("%s--------发送平空仓委托，价格：%.2f" % (bar.datetime, self.intraTradeLow * (1 + self.trailingPrcnt / 100)))
+            logger.info("%s--------%s 发送平空仓委托，价格：%.2f" % (bar.datetime, bar.symbol,self.intraTradeLow * (1 + self.trailingPrcnt / 100)))
     
         # 发出状态更新事件
         self.putEvent()        
