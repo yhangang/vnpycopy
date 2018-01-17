@@ -27,7 +27,7 @@ class IF_KkStrategy(CtaTemplate):
     # 策略参数
     kkLength = 11  # 计算通道中值的窗口数
     kkDev = 1.618  # 计算通道宽度的偏差
-    trailingPrcnt = 0.35  # 移动止损
+    trailingPrcnt = 0.45  # 移动止损
     initDays = 10  # 初始化数据所用的天数
     fixedSize = 2  # 每次交易的数量
 
