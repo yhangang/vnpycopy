@@ -1,9 +1,4 @@
 {
-    "symbol":
-    [
-        "CFFEX.IF1801.bar.60",
-        "CFFEX.IH1801.bar.60",
-        "DCE.j1805.bar.60",
-        "SHFE.rb1805.bar.60"
-    ]
+    "symbol" : "CFFEX.IH.bar.60,CFFEX.IF.bar.60"
+    
 }

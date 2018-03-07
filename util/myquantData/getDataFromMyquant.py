@@ -15,9 +15,7 @@ from vnpy.trader.app.ctaStrategy.ctaBase import TICK_DB_NAME
 from vnpy.trader.vtObject import VtBarData
 from vnpy.trader.vtObject import VtTickData
 
-self_symbol = ""        #合约代码
-self_exchange = ""      #交易所代码
-self_vtSymbol = ""      #vtSymbol
+
 
 
 # 引入工具类
@@ -28,16 +26,7 @@ class MyStrategy(StrategyBase):
         super(MyStrategy, self).__init__(*args, **kwargs)
         
         # 创建MongoDB连接
-        client = pymongo.MongoClient('localhost', 27017)
-        
-#         self.tick_collection = client[TICK_DB_NAME][self_symbol] 
-#         self.tick_collection.ensure_index('datetime')
-        
-        #根据K线类型，分别配置MINUTE_DB_NAME和TICK_DB_NAME
-        self.bar_collection = client[MINUTE_DB_NAME][self_symbol]
-#         self.bar_collection = client[DAILY_DB_NAME][self_symbol] 
-        self.bar_collection.ensure_index('datetime')
-        
+        self.client = pymongo.MongoClient('localhost', 27017)
         print u'MongoDB连接成功'
         
         
@@ -52,9 +41,9 @@ class MyStrategy(StrategyBase):
         vtTick = VtTickData()
         
         # 代码相关
-        vtTick.symbol = self_symbol              # 合约代码
-        vtTick.exchange = self_exchange            # 交易所代码
-        vtTick.vtSymbol = self_vtSymbol            # 合约在vt系统中的唯一代码，通常是 合约代码.交易所代码
+        vtTick.symbol = tick.sec_id              # 合约代码
+        vtTick.exchange = tick.exchange            # 交易所代码
+        vtTick.vtSymbol = vtTick.symbol + '.' + vtTick.exchange         # 合约在vt系统中的唯一代码，通常是 合约代码.交易所代码
         
         # 成交数据
         vtTick.lastPrice = tick.last_price            # 最新成交价
@@ -106,6 +95,8 @@ class MyStrategy(StrategyBase):
         except:
             pass
         
+        self.tick_collection = self.client[TICK_DB_NAME][vtTick.symbol] 
+        self.tick_collection.ensure_index('datetime')
         flt = {'datetime': vtTick.datetime}
         self.tick_collection.update_one(flt, {'$set':vtTick.__dict__}, upsert=True)
         
@@ -113,9 +104,9 @@ class MyStrategy(StrategyBase):
     def on_bar(self, bar):
         print bar.strtime
         vtBar = VtBarData()
-        vtBar.vtSymbol = self_vtSymbol        # vt系统代码
-        vtBar.symbol = self_symbol          # 代码
-        vtBar.exchange = self_exchange        # 交易所
+        vtBar.symbol = bar.sec_id          # 代码
+        vtBar.exchange = bar.exchange        # 交易所
+        vtBar.vtSymbol = vtBar.symbol + '.' + vtBar.exchange       # vt系统代码
     
         vtBar.open = bar.open             # OHLC
         vtBar.high = bar.high
@@ -130,6 +121,8 @@ class MyStrategy(StrategyBase):
         vtBar.volume = bar.volume             # 成交量
         vtBar.openInterest = bar.position       # 持仓量
     
+        self.bar_collection = self.client[MINUTE_DB_NAME][vtBar.symbol]
+        self.bar_collection.ensure_index('datetime')
         flt = {'datetime': vtBar.datetime}
         self.bar_collection.update_one(flt, {'$set':vtBar.__dict__}, upsert=True)
       
@@ -151,30 +144,24 @@ if __name__ == '__main__':
         setting = json.load(f)          #加载配置文件
     subscribe_symbols = setting["symbol"]
     
-    #读取配置文件的合约，依次插入数据
-    for symbol in subscribe_symbols:
-        self_symbol = symbol.split('.')[1]
-        self_exchange = symbol.split('.')[0]
-        self_vtSymbol = self_symbol + "." +self_exchange
-        print("symbol:" + self_vtSymbol + " initialized")
         
-        
-        mystrategy = MyStrategy(
-            username='18217641619',
-            password='yh8013209',
-            strategy_id='strategy_1',
-            subscribe_symbols=symbol,
-            mode=4,
-            td_addr='localhost:8001')
-        ret = mystrategy.backtest_config(
-            start_time='2018-01-01 9:00:00',
-            end_time='2018-12-31 15:00:00',
-            initial_cash=1000000,
-            transaction_ratio=1,
-            commission_ratio=0,
-            slippage_ratio=0,
-            price_type=1,
-            bench_symbol='')
-        ret = mystrategy.run()
-        string = mystrategy.get_strerror(ret)
-        print string.decode('gb2312')
+    mystrategy = MyStrategy(
+        username='18217641619',
+        password='yh8013209',
+        strategy_id='strategy_1',
+        subscribe_symbols=subscribe_symbols,
+        mode=4,
+        td_addr='localhost:8001')
+    ret = mystrategy.backtest_config(
+        start_time='2018-03-07 9:00:00',
+        end_time='2018-12-31 15:00:00',
+        initial_cash=1000000,
+        transaction_ratio=1,
+        commission_ratio=0,
+        slippage_ratio=0,
+        price_type=1,
+        bench_symbol='')
+    
+    ret = mystrategy.run()
+    string = mystrategy.get_strerror(ret)
+    print string.decode('gb2312')
