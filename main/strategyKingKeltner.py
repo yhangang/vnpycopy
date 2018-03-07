@@ -29,7 +29,7 @@ class KkStrategy(CtaTemplate):
     kkDev = 1.618  # 计算通道宽度的偏差
     trailingPrcnt = 0.45  # 移动止损
     initDays = 10  # 初始化数据所用的天数
-    fixedSize = 2  # 每次交易的数量
+    fixedSize = 3  # 每次交易的数量
 
 
     # 参数列表，保存了参数的名称
@@ -57,7 +57,7 @@ class KkStrategy(CtaTemplate):
         """Constructor"""
         super(KkStrategy, self).__init__(ctaEngine, setting)
         
-        self.bm = BarManager(self.onBar, 5, self.onFiveBar)  # 创建K线合成器对象
+        self.bm = BarManager(self.onBar, 3, self.onFiveBar)  # 创建K线合成器对象
         self.am = ArrayManager(self.kkLength + 1)
         
         # 策略变量
@@ -108,7 +108,7 @@ class KkStrategy(CtaTemplate):
         self.upLimit = tick.upperLimit
         
         # 到达收盘时段14:50:00以后，强制平仓
-        if arrow.get(tick.datetime).hour == 14 and arrow.get(tick.datetime).minute >= 50 and arrow.get(tick.datetime).second >= 0:
+        if arrow.get(tick.datetime).hour == 14 and arrow.get(tick.datetime).minute >= 59 and arrow.get(tick.datetime).second >= 30:
             if self.pos > 0:
                 self.short(self.downLimit, abs(self.pos))
             elif self.pos < 0:
@@ -168,6 +168,11 @@ class KkStrategy(CtaTemplate):
                 # 发出状态更新事件
                 self.putEvent() 
                 return 
+			#9:15之前禁止开仓
+            if arrow.get(bar.datetime).hour == 9 and arrow.get(bar.datetime).minute <= 37:
+                # 发出状态更新事件
+                self.putEvent() 
+                return
             if self.tradeCountLimit >= 1:
                 self.intraTradeHigh = bar.high
                 self.intraTradeLow = bar.low            
@@ -209,7 +214,7 @@ class KkStrategy(CtaTemplate):
                                                                                           trade.price,
                                                                                            trade.volume,
                                                                                             trade.tradeTime))
-        self.tradeCountLimit -= 1
+        self.tradeCountLimit -= trade.volume
         if self.pos != 0:
             # 多头开仓成交后，撤消空头委托
             if self.pos > 0:
